@@ -3,6 +3,7 @@ package leandro.marcos.spring_study.services;
 import leandro.marcos.spring_study.dtos.CategoryDTO;
 import leandro.marcos.spring_study.entities.Category;
 import leandro.marcos.spring_study.repository.CategoryRepository;
+import leandro.marcos.spring_study.services.exceptions.ResourceNotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +28,15 @@ public class CategoryService {
     public CategoryDTO findById(Long id){
         Optional<Category> obj = categoryRepository.findById(id);
 
-        Category category = obj.get();
+        Category category = obj.orElseThrow( () -> new ResourceNotFound("Category not found: " + id));
         return new CategoryDTO(category);
+    }
+
+    @Transactional
+    public CategoryDTO insert(CategoryDTO dto){
+        Category entity = new Category();
+        entity.setName(dto.getName());
+        entity = categoryRepository.save(entity);
+        return new CategoryDTO(entity);
     }
 }
