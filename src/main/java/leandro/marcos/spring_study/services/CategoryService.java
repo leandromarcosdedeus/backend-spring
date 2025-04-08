@@ -3,8 +3,12 @@ package leandro.marcos.spring_study.services;
 import leandro.marcos.spring_study.dtos.CategoryDTO;
 import leandro.marcos.spring_study.entities.Category;
 import leandro.marcos.spring_study.repository.CategoryRepository;
+import leandro.marcos.spring_study.services.exceptions.DatabaseException;
 import leandro.marcos.spring_study.services.exceptions.ResourceNotFound;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +23,9 @@ public class CategoryService {
     private CategoryRepository categoryRepository;
 
     @Transactional(readOnly = true)
-    public List<CategoryDTO> findAll(){
-        List<Category> list = categoryRepository.findAll();
-        return list.stream().map(categoria -> new CategoryDTO(categoria)).collect(Collectors.toList());
+    public Page<CategoryDTO> findAll(Pageable pageable) {
+        Page<Category> list = categoryRepository.findAll(pageable);
+        return list.map(c -> new CategoryDTO(c));
     }
 
     @Transactional(readOnly = true)
@@ -38,5 +42,29 @@ public class CategoryService {
         entity.setName(dto.getName());
         entity = categoryRepository.save(entity);
         return new CategoryDTO(entity);
+    }
+
+
+    @Transactional
+    public CategoryDTO update(Long id, CategoryDTO dto){
+        Category entity = categoryRepository.getReferenceById(id);
+        entity.setName(dto.getName());
+        entity = categoryRepository.save(entity);
+
+        return new CategoryDTO(entity); 
+    }
+
+    @Transactional
+    public void delete(Long id){
+
+        if(!categoryRepository.existsById(id)){
+            throw new ResourceNotFound("Category not found: " + id);
+        }
+
+        try{
+            categoryRepository.deleteById(id);
+        }catch(DataIntegrityViolationException e){
+            throw new DatabaseException("Integrity violation");
+        }
     }
 }
