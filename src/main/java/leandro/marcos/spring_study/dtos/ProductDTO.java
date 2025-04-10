@@ -1,6 +1,8 @@
-package leandro.marcos.spring_study.entities;
+package leandro.marcos.spring_study.dtos;
 
 import jakarta.persistence.*;
+import leandro.marcos.spring_study.entities.Category;
+import leandro.marcos.spring_study.entities.Product;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -8,9 +10,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
-@Table(name="tb_product")
-public class Product {
+public class ProductDTO {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,28 +24,23 @@ public class Product {
 
     @ManyToMany
     @JoinTable(
-        name = "tb_product_category",
+            name = "tb_product_category",
             joinColumns = @JoinColumn(name="product_id"),
             inverseJoinColumns = @JoinColumn(name="category_id")
     )
     private Set<Category> categories = new HashSet<>();
 
-    public Product(Long id, String name, String description, BigDecimal price, String imageUrl, Instant createdAt, Instant updatedAt, Set<Category> categories) {
+    public ProductDTO(Long id, String name, String description, BigDecimal price, String imageUrl, Instant createdAt, Instant updatedAt, Set<Category> categories) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.imageUrl = imageUrl;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
         this.categories = categories;
     }
 
-    public Product(Product product, Set<Category> categories){
-        this(product);
-        this.categories= categories;
-    }
-    public Product(Product entity) {
+
+    public ProductDTO(Product entity) {
         this.id = entity.getId();
         this.name = entity.getName();
         this.description = entity.getDescription();
@@ -53,11 +49,17 @@ public class Product {
         this.createdAt = entity.getCreatedAt();
         this.updatedAt = entity.getUpdatedAt();
         this.categories = entity.getCategories();
+
+        entity.getCategories().stream().forEach(c -> this.categories.add(new CategoryDTO(c)));
     }
 
 
-    public Product() {}
+    public ProductDTO() {}
 
+    public ProductDTO(Product product, Set<Category> categories){
+        this(product);
+        categories.forEach( c -> this.categories.add(new CategoryDTO(c)));
+    }
 
     public Long getId() {
         return id;
@@ -99,32 +101,12 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     public Set<Category> getCategories() {
         return categories;
     }
 
     public void setCategories(Set<Category> categories) {
         this.categories = categories;
-    }
-
-    public void preUpdate(){
-        this.updatedAt = Instant.now();
     }
 
     @Override
