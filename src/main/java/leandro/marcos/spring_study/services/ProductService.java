@@ -1,6 +1,7 @@
 package leandro.marcos.spring_study.services;
 
 import leandro.marcos.spring_study.dtos.ProductDTO;
+import leandro.marcos.spring_study.entities.Category;
 import leandro.marcos.spring_study.entities.Product;
 import leandro.marcos.spring_study.repository.ProductRepository;
 import leandro.marcos.spring_study.services.exceptions.ResourceNotFound;
@@ -44,7 +45,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductDTO update(Long id, Product dto){
+    public static ProductDTO update(Long id, ProductDTO dto){
         Product entity = new Product();
 
         copyDtoToEntity(dto, entity);
@@ -53,10 +54,19 @@ public class ProductService {
         return new ProductDTO(entity);
     }
 
+    @Transactional
+    public static delete update(Long id){
+        Optional<Product> obj = productRepository.findById(id);
+
+        return new ProductDTO(obj);
+    }
+
     private void copyDtoToEntity(ProductDTO dto, Product entity){
         entity.setName(dto.getName());
-        entity.setDescription(dto.getDescription());
+        entity.setDescription((dto.getDescription()));
         entity.setPrice(dto.getPrice());
         entity.setImageUrl(dto.getImageUrl());
+
+        dto.getCategories().forEach(c -> entity.getCategories().add(new Category(c)));
     }
 }

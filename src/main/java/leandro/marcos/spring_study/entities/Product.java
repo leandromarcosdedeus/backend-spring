@@ -1,6 +1,7 @@
 package leandro.marcos.spring_study.entities;
 
 import jakarta.persistence.*;
+import leandro.marcos.spring_study.dtos.ProductDTO;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -139,4 +140,6 @@ public class Product {
     public int hashCode() {
         return Objects.hash(id, name, description, price, imageUrl, createdAt, updatedAt, categories);
     }
+
+
 }

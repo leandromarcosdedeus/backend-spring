@@ -1,6 +1,7 @@
 package leandro.marcos.spring_study.entities;
 
 import jakarta.persistence.*;
+import leandro.marcos.spring_study.dtos.CategoryDTO;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -25,6 +26,11 @@ public class Category {
         this.id = id;
         this.name = name;
     }
+    public Category(CategoryDTO dto) {
+        this.id = dto.getId();
+        this.name = dto.getName();
+    }
+
 
     public Long getId() {
         return id;
